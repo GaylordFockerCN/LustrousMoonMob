@@ -1,7 +1,7 @@
 package com.p1nero.lmm.entity.client;
 
 import com.p1nero.lmm.LustrousMoonMobMod;
-import com.p1nero.lmm.entity.YangJian;
+import com.p1nero.lmm.entity.yangjian.YangJian;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 

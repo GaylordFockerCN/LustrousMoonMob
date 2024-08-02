@@ -2,7 +2,6 @@ package com.p1nero.lmm;
 
 import com.mojang.logging.LogUtils;
 import com.p1nero.lmm.entity.LMMEntities;
-import com.p1nero.lmm.entity.YangJian;
 import com.p1nero.lmm.entity.client.YangJianRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;

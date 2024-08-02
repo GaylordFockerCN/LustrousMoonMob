@@ -1,6 +1,7 @@
 package com.p1nero.lmm.entity;
 
 import com.p1nero.lmm.LustrousMoonMobMod;
+import com.p1nero.lmm.entity.yangjian.YangJian;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
