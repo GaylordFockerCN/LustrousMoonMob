@@ -95,28 +95,30 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         super.tick();
 
         if(level() instanceof ServerLevel serverLevel){
-            if(explodeTimer > 0 && !explodePos.isEmpty()){
-                explodeTimer--;
-                //生成一圈粒子特效
-                for(Vec3 pos : explodePos){
-                    double radius = 1.5;
-                    int particlesCount = 20;
-                    double angleIncrement = 2 * Math.PI;
-                    for (int i = 0; i < particlesCount; i++) {
-                        double angle = i * angleIncrement;
-                        double offsetX = radius * Math.cos(angle);
-                        double offsetZ = radius * Math.sin(angle);
-                        double posX = pos.x + offsetX;
-                        double posZ = pos.z + offsetZ;
-                        serverLevel.sendParticles(ParticleTypes.DRAGON_BREATH, posX, pos.y, posZ, 3, random.nextDouble(), random.nextDouble(), random.nextDouble(), 0.01);
+            if(!explodePos.isEmpty()){
+                if(explodeTimer > 0){
+                    explodeTimer--;
+                    //生成一圈粒子特效
+                    for(Vec3 pos : explodePos){
+                        double radius = 1.5;
+                        int particlesCount = 20;
+                        double angleIncrement = 2 * Math.PI;
+                        for (int i = 0; i < particlesCount; i++) {
+                            double angle = i * angleIncrement;
+                            double offsetX = radius * Math.cos(angle);
+                            double offsetZ = radius * Math.sin(angle);
+                            double posX = pos.x + offsetX;
+                            double posZ = pos.z + offsetZ;
+                            serverLevel.sendParticles(ParticleTypes.DRAGON_BREATH, posX, pos.y, posZ, 3, random.nextDouble(), random.nextDouble(), random.nextDouble(), 0.01);
+                        }
                     }
+                }else {
+                    explodeTimer = 40;
+                    for(Vec3 pos : explodePos){
+                        level().explode(this, this.damageSources().mobAttack(this), null, pos, 1.5F, false, Level.ExplosionInteraction.NONE);
+                    }
+                    explodePos.clear();
                 }
-            }else {
-                explodeTimer = 40;
-                for(Vec3 pos : explodePos){
-                    level().explode(this, this.damageSources().mobAttack(this), null, pos, 1.5F, false, Level.ExplosionInteraction.NONE);
-                }
-                explodePos.clear();
             }
 
         }
@@ -146,7 +148,11 @@ public class YangJian extends PathfinderMob implements GeoEntity {
      */
     public void racer(LivingEntity target){
         this.lookControl.setLookAt(target);
+        triggerAnim("Skill", "racer");
+        List<Player> players = getNearByPlayers(64);
+        if(players.contains(target)){
 
+        }
     }
 
     /**
@@ -280,6 +286,10 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         controllers.add(new AnimationController<>(this, "BasicAttack", 10, state -> PlayState.STOP)
                 .triggerableAnim("poke", RawAnimation.begin().then("poke", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("sweep", RawAnimation.begin().then("sweep", Animation.LoopType.PLAY_ONCE)));
+        controllers.add(new AnimationController<>(this, "Skill", 10, state -> PlayState.STOP)
+                .triggerableAnim("racer", RawAnimation.begin().then("racer", Animation.LoopType.PLAY_ONCE))
+                .triggerableAnim("explode", RawAnimation.begin().then("explode", Animation.LoopType.PLAY_ONCE)));
+
     }
 
     private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
