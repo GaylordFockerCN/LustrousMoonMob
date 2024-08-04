@@ -1,6 +1,7 @@
 package com.p1nero.lmm.entity;
 
 import com.p1nero.lmm.LustrousMoonMobMod;
+import com.p1nero.lmm.entity.yangjian.Racer;
 import com.p1nero.lmm.entity.yangjian.YangJian;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -20,10 +21,12 @@ import net.minecraftforge.registries.RegistryObject;
 public class LMMEntities {
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, LustrousMoonMobMod.MOD_ID);
     public static final RegistryObject<EntityType<YangJian>> YANG_JIAN = register("yang_jian",
-            EntityType.Builder.of(YangJian::new, MobCategory.CREATURE));
+            EntityType.Builder.of(YangJian::new, MobCategory.MONSTER), 1, 3);
+    public static final RegistryObject<EntityType<Racer>> RACER = register("racer",
+            EntityType.Builder.of(Racer::new, MobCategory.MISC), 1, 1);
 
-    private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
-        return REGISTRY.register(name, () -> entityTypeBuilder.build(new ResourceLocation(LustrousMoonMobMod.MOD_ID, name).toString()));
+    private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder, float sizeXZ, float sizeY) {
+        return REGISTRY.register(name, () -> entityTypeBuilder.sized(sizeXZ, sizeY).build(new ResourceLocation(LustrousMoonMobMod.MOD_ID, name).toString()));
     }
 
     @SubscribeEvent

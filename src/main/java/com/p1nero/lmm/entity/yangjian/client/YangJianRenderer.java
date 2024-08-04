@@ -1,4 +1,4 @@
-package com.p1nero.lmm.entity.client;
+package com.p1nero.lmm.entity.yangjian.client;
 
 import com.p1nero.lmm.entity.yangjian.YangJian;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

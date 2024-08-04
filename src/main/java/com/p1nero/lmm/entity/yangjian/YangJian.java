@@ -1,11 +1,7 @@
 package com.p1nero.lmm.entity.yangjian;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,18 +14,20 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.*;
 import software.bernie.geckolib.core.object.PlayState;
@@ -38,7 +36,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 
 /**
- * 1.平a有刺击和横扫两种，横扫攻击判定是BOSS面前的一个半圆，刺击就是正前方较长的一段距离，刺击的时候播放：attack1,横扫播放attack2,分别有各自的音效
+ * 1.平a有刺击和横扫两种，横扫3点戳5点，横扫攻击判定是BOSS面前的一个半圆，刺击就是正前方较长的一段距离，刺击的时候播放：attack1,横扫播放attack2,分别有各自的音效
  * 2.走路是飘着的，是一个身体前倾的动画，播放walk
  * 3.技能一是从额头处射出一道激光，锁定一名玩家，每秒造成3点伤害，持续5秒，不需要额外的动画，但播放一个音效
  * 4.技能二是对所有玩家脚下生成一个3X3的判定圈，两秒后在判定圈落下光球这种东西砸向玩家，造成10点伤害，并给予5秒缓慢Ⅰ.播放动画skill1，并伴随音效
@@ -49,6 +47,9 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final ServerBossEvent bossInfo = new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
     private int explodeTimer;
+    private int racerTimer;
+    private int pokeAttackTimer;
+    private int sweepAttackTimer;
     private int basicAttackCount = 0;
     private final Set<Vec3> explodePos = new HashSet<>();
     public YangJian(EntityType<? extends PathfinderMob> type, Level level) {
@@ -64,7 +65,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 2000)//最大血量
                 .add(Attributes.ATTACK_SPEED, 0.5f)//攻速
-                .add(Attributes.MOVEMENT_SPEED, 0.30f)//移速
+                .add(Attributes.MOVEMENT_SPEED, 2f)//移速
                 .add(Attributes.KNOCKBACK_RESISTANCE, 114514)//抗性
                 .build();
     }
@@ -78,6 +79,8 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         this.goalSelector.addGoal(0, new RecoverIfNoPlayerGoal(this));
         this.goalSelector.addGoal(1, new YangJianAttackGoal(this));
         this.goalSelector.addGoal(2, new YangJianSkillGoal(this));
+        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
     @Override
@@ -90,38 +93,87 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         bossInfo.removePlayer(player);
     }
 
+    /**
+     * 因为攻击要延迟，所以几乎都集中在tick判断
+     */
     @Override
     public void tick() {
         super.tick();
 
         if(level() instanceof ServerLevel serverLevel){
+
+            //爆炸判断
             if(!explodePos.isEmpty()){
                 if(explodeTimer > 0){
                     explodeTimer--;
                     //生成一圈粒子特效
                     for(Vec3 pos : explodePos){
-                        double radius = 1.5;
-                        int particlesCount = 20;
-                        double angleIncrement = 2 * Math.PI;
+                        double radius = 3;
+                        int particlesCount = 200;
+                        double angleIncrement = 2 * Math.PI / particlesCount;
                         for (int i = 0; i < particlesCount; i++) {
                             double angle = i * angleIncrement;
                             double offsetX = radius * Math.cos(angle);
                             double offsetZ = radius * Math.sin(angle);
                             double posX = pos.x + offsetX;
                             double posZ = pos.z + offsetZ;
-                            serverLevel.sendParticles(ParticleTypes.DRAGON_BREATH, posX, pos.y, posZ, 3, random.nextDouble(), random.nextDouble(), random.nextDouble(), 0.01);
+                            serverLevel.sendParticles(ParticleTypes.DRAGON_BREATH, posX, pos.y, posZ, 1, 0, 0.1, 0, 0.01);
                         }
                     }
                 }else {
                     explodeTimer = 40;
                     for(Vec3 pos : explodePos){
-                        level().explode(this, this.damageSources().mobAttack(this), null, pos, 1.5F, false, Level.ExplosionInteraction.NONE);
+                        level().explode(this, this.damageSources().mobAttack(this), null, pos, 3F, false, Level.ExplosionInteraction.NONE);
                     }
                     explodePos.clear();
                 }
             }
 
         }
+
+        //戳判断
+        if(pokeAttackTimer > 0 && pokeAttackTimer < 114514){
+            pokeAttackTimer--;
+        }else if(pokeAttackTimer < 114514){
+            List<Player> players = getNearByPlayers(6);
+            for(Player player : players){
+                if(Math.abs(player.getY() - this.getY()) >= 4){
+                    continue;
+                }
+                Vec3 targetToBoss = player.position().subtract(this.position());
+                Vec2 targetToBossV2 = new Vec2(((float) targetToBoss.x), ((float) targetToBoss.z));
+                Vec3 view = this.getViewVector(1.0F);
+                Vec2 viewV2 = new Vec2(((float) view.x), ((float) view.z));
+                double angleRadians = Math.acos(targetToBossV2.dot(viewV2)/(targetToBossV2.length() * viewV2.length()));
+                double degree = Math.toDegrees(angleRadians);
+                if(Math.abs(degree) <= 7 && player.distanceTo(this) <= 4.2F){
+                    player.hurt(this.damageSources().mobAttack(this), 10.0F);
+                }
+            }
+            pokeAttackTimer = 114514;
+        }
+        //横扫攻击判断
+        if(sweepAttackTimer > 0 && sweepAttackTimer < 114514){
+            sweepAttackTimer--;
+        }else if(sweepAttackTimer < 114514){
+            List<Player> players = getNearByPlayers(6);
+            for(Player player : players){
+                if(Math.abs(player.getY() - this.getY()) >= 4){
+                    continue;
+                }
+                Vec3 targetToBoss = player.position().subtract(this.position());
+                Vec2 targetToBossV2 = new Vec2(((float) targetToBoss.x), ((float) targetToBoss.z));
+                Vec3 view = this.getViewVector(1.0F);
+                Vec2 viewV2 = new Vec2(((float) view.x), ((float) view.z));
+                double angleRadians = Math.acos(targetToBossV2.dot(viewV2)/(targetToBossV2.length() * viewV2.length()));
+                double degree = Math.toDegrees(angleRadians);
+                if(Math.abs(degree) <= 90 && player.distanceTo(this) <= 3.2F){
+                    player.hurt(this.damageSources().mobAttack(this), 6.0F);
+                }
+            }
+            sweepAttackTimer = 114514;
+        }
+
 
     }
 
@@ -131,7 +183,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     public void doPoke(LivingEntity target){
         this.lookControl.setLookAt(target);
         triggerAnim("BasicAttack", "poke");
-
+        pokeAttackTimer = 10;
     }
 
     /**
@@ -140,7 +192,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     public void doSweep(LivingEntity target){
         this.lookControl.setLookAt(target);
         triggerAnim("BasicAttack", "sweep");
-
+        sweepAttackTimer = 10;
     }
 
     /**
@@ -148,10 +200,11 @@ public class YangJian extends PathfinderMob implements GeoEntity {
      */
     public void racer(LivingEntity target){
         this.lookControl.setLookAt(target);
-        triggerAnim("Skill", "racer");
+//        triggerAnim("Skill", "racer");
         List<Player> players = getNearByPlayers(64);
         if(players.contains(target)){
-
+            Racer racer = new Racer(level(), target, this);
+            level().addFreshEntity(racer);
         }
     }
 
@@ -159,7 +212,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
      * 技能2范围爆炸，判断在tick里
      */
     public void preExplode(int size){
-        triggerAnim("Skill", "explode");
+//        triggerAnim("Skill", "explode");
         List<Player> players = getNearByPlayers(size);
         for(Player player : players){
             explodePos.add(player.getPosition(1.0F));
@@ -195,12 +248,12 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
         private YangJianSkillGoal(YangJian boss){
             this.boss = boss;
-            count = boss.random.nextInt(1,5);
+            count = boss.random.nextInt(2,5);
         }
 
         @Override
         public boolean canUse() {
-            return boss.basicAttackCount>=count;
+            return boss.basicAttackCount >= count;
         }
 
         @Override
@@ -223,12 +276,6 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         private YangJianAttackGoal(YangJian boss) {
             super(boss, 0.3, true);
             this.boss = boss;
-        }
-
-
-        @Override
-        public boolean canUse() {
-            return super.canUse();
         }
 
         @Override
@@ -282,7 +329,14 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller",
-                10, this::predicate));
+                10,tAnimationState -> {
+            if(tAnimationState.isMoving()) {
+                tAnimationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+                return PlayState.CONTINUE;
+            }
+            tAnimationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+            return PlayState.STOP;
+        }));
         controllers.add(new AnimationController<>(this, "BasicAttack", 10, state -> PlayState.STOP)
                 .triggerableAnim("poke", RawAnimation.begin().then("poke", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("sweep", RawAnimation.begin().then("sweep", Animation.LoopType.PLAY_ONCE)));
@@ -290,15 +344,6 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                 .triggerableAnim("racer", RawAnimation.begin().then("racer", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("explode", RawAnimation.begin().then("explode", Animation.LoopType.PLAY_ONCE)));
 
-    }
-
-    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
-        if(tAnimationState.isMoving()) {
-            tAnimationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
-            return PlayState.CONTINUE;
-        }
-        tAnimationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
-        return PlayState.STOP;
     }
 
     @Override
