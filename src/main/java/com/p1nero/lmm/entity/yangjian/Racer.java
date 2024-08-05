@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,10 +53,13 @@ public class Racer extends Entity {
     @Override
     public void tick() {
         super.tick();
+        //需要在玩家眼里才会渲染出来。。
         if(target != null && owner != null){
-            Vec3 targetPos = target.position();
-            Vec3 ownerPos = owner.position();
-            setPos(targetPos.add(ownerPos).scale(0.5));
+            setPos(target.position().add(0,1,0));
+        }
+        //存活5s
+        if(tickCount > 100){
+//            discard();
         }
     }
 

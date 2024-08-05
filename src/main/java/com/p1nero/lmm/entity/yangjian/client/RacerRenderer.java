@@ -16,6 +16,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class RacerRenderer extends EntityRenderer<Racer> {
 
@@ -32,35 +34,26 @@ public class RacerRenderer extends EntityRenderer<Racer> {
             return;
         }
         Vec3 eye = owner.getEyePosition();
-        Vec3 targetVec = target.position();
-        double dis = targetVec.distanceTo(eye);
-        Vec3 targetToEye = targetVec.subtract(eye);
-
-        double YRot =(float) Math.toDegrees(Math.atan2(targetToEye.x, targetToEye.z));
-        double pitchRad = Math.toRadians(YRot);
-        double yawRad = Math.toRadians((float) Math.toDegrees(Math.atan2(targetToEye.y, targetToEye.horizontalDistance())));
-        float xRot = (float) -Math.toDegrees(yawRad * Math.cos(pitchRad));
-        float zRot = (float) Math.toDegrees(yawRad * Math.sin(pitchRad));
-        if(0 < -YRot && -YRot <180){
-            zRot = -zRot;
-        }
+        Vec3 targetVec = target.position().add(0,1,0);
+        double dis = targetVec.distanceTo(eye) + 0.5;
+        Vector3f targetToEye = targetVec.subtract(eye).normalize().toVector3f();
+        Vector3f ordinal = new Vector3f(0, 1, 0);
+        Quaternionf quaternion = new Quaternionf().rotateTo(ordinal.x, ordinal.y, ordinal.z, targetToEye.x, targetToEye.y, targetToEye.z);
         pPoseStack.pushPose();
-        pPoseStack.mulPose(Axis.XP.rotationDegrees(xRot));
-        pPoseStack.mulPose(Axis.YP.rotationDegrees(((float) YRot) - 90));
-        pPoseStack.mulPose(Axis.ZP.rotationDegrees(zRot));
-        renderBeaconBeam(pPoseStack, pBuffer, pPartialTick, owner.level().getGameTime(), - dis / 2, dis, new float[]{5,5,5});
+        pPoseStack.mulPose(quaternion);
+        renderBeaconBeam(pPoseStack, pBuffer, pPartialTick, owner.level().getGameTime(), -dis, dis, new float[]{5,5,5});
         pPoseStack.popPose();
     }
 
 
-    private static void renderBeaconBeam(PoseStack pPoseStack, MultiBufferSource pBufferSource, float pPartialTick, long pGameTime, double pYOffset, double pHeight, float[] pColors) {
-        renderBeaconBeam(pPoseStack, pBufferSource, BEAM_LOCATION, pPartialTick, 1.0F, pGameTime, pYOffset, pHeight, pColors, 0.2F, 0.25F);
+    public static void renderBeaconBeam(PoseStack pPoseStack, MultiBufferSource pBufferSource, float pPartialTick, long pGameTime, double pYOffset, double pHeight, float[] pColors) {
+        renderBeaconBeam(pPoseStack, pBufferSource, BEAM_LOCATION, pPartialTick, 1.0F, pGameTime, pYOffset, pHeight, pColors, 0.1F, 0.15F);
     }
 
     public static void renderBeaconBeam(PoseStack pPoseStack, MultiBufferSource pBufferSource, ResourceLocation pBeamLocation, float pPartialTick, float pTextureScale, long pGameTime, double pYOffset, double pHeight, float[] pColors, float pBeamRadius, float pGlowRadius) {
         double $$11 = pYOffset + pHeight;
         pPoseStack.pushPose();
-        pPoseStack.translate(0.5, 0.0, 0.5);
+//        pPoseStack.translate(0.5, 0.0, 0.5);
         float $$12 = (float)Math.floorMod(pGameTime, 40) + pPartialTick;
         float $$13 = pHeight < 0 ? $$12 : -$$12;
         float $$14 = Mth.frac($$13 * 0.2F - (float)Mth.floor($$13 * 0.1F));
@@ -113,6 +106,8 @@ public class RacerRenderer extends EntityRenderer<Racer> {
     private static void addVertex(Matrix4f pPose, Matrix3f pNormal, VertexConsumer pConsumer, float pRed, float pGreen, float pBlue, float pAlpha, double pY, float pX, float pZ, float pU, float pV) {
         pConsumer.vertex(pPose, pX, (float)pY, pZ).color(pRed, pGreen, pBlue, pAlpha).uv(pU, pV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(pNormal, 0.0F, 1.0F, 0.0F).endVertex();
     }
+
+
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull Racer racer) {

@@ -2,12 +2,16 @@ package com.p1nero.lmm.entity.yangjian;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -47,11 +51,12 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final ServerBossEvent bossInfo = new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
     private int explodeTimer;
-    private int racerTimer;
     private int pokeAttackTimer;
     private int sweepAttackTimer;
     private int basicAttackCount = 0;
     private final Set<Vec3> explodePos = new HashSet<>();
+    private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> RACER_TIMER = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
     public YangJian(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
         //根据人数调血量（生成即为确定，不实时检测）
@@ -59,6 +64,13 @@ public class YangJian extends PathfinderMob implements GeoEntity {
             int playerCnt = Math.min(serverLevel.players().size(), 4);
             Objects.requireNonNull(getAttribute(Attributes.MAX_HEALTH)).setBaseValue(500 * playerCnt);
         }
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        getEntityData().define(TARGET_ID, -1);
+        getEntityData().define(RACER_TIMER, 0);
     }
 
     public static AttributeSupplier setAttributes() {//生物属性
@@ -131,6 +143,11 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
         }
 
+        int racerTimer = getEntityData().get(RACER_TIMER);
+        if(racerTimer > 0){
+            getEntityData().set(RACER_TIMER, racerTimer - 1);
+        }
+
         //戳判断
         if(pokeAttackTimer > 0 && pokeAttackTimer < 114514){
             pokeAttackTimer--;
@@ -198,14 +215,29 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     /**
      * 技能1发射激光
      */
-    public void racer(LivingEntity target){
-        this.lookControl.setLookAt(target);
-//        triggerAnim("Skill", "racer");
+    public void racer(){
         List<Player> players = getNearByPlayers(64);
-        if(players.contains(target)){
-            Racer racer = new Racer(level(), target, this);
-            level().addFreshEntity(racer);
+        if(players.isEmpty()){
+            return;
         }
+        Player target;
+        if(getTarget() instanceof Player player && players.contains(player)){
+            target = player;
+        } else {
+            target = players.iterator().next();
+        }
+        this.lookControl.setLookAt(target);
+        getEntityData().set(TARGET_ID, target.getId());
+        getEntityData().set(RACER_TIMER, 100);
+    }
+
+    public int getRacerTimer() {
+        return getEntityData().get(RACER_TIMER);
+    }
+
+    @Nullable
+    public Entity getRacerTarget(){
+        return level().getEntity(getEntityData().get(TARGET_ID));
     }
 
     /**
@@ -263,7 +295,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
             if(boss.random.nextBoolean()){
                 boss.preExplode(64);
             }else {
-                boss.racer(boss.getTarget());
+                boss.racer();
             }
         }
 
