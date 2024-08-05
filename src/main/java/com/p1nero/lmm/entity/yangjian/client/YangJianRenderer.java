@@ -34,8 +34,11 @@ public class YangJianRenderer extends GeoEntityRenderer<YangJian> {
             if(target == null){
                 return;
             }
+            if(boss.getDelayPlayerPos() == null){
+                return;
+            }
+            Vec3 targetVec = boss.getDelayPlayerPos().add(0,1,0);
             Vec3 eye = boss.getEyePosition();
-            Vec3 targetVec = target.position().add(0,1,0);
             double dis = targetVec.distanceTo(eye) + 0.5;
             Vector3f targetToEye = targetVec.subtract(eye).normalize().toVector3f();
             Vector3f ordinal = new Vector3f(0, 1, 0);

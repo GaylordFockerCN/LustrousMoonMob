@@ -54,7 +54,9 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     private int pokeAttackTimer;
     private int sweepAttackTimer;
     private int basicAttackCount = 0;
+    private final int explodeDelay = 40;
     private final Set<Vec3> explodePos = new HashSet<>();
+    private final Queue<Vec3> playerPos = new ArrayDeque<>();
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> RACER_TIMER = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
     public YangJian(EntityType<? extends PathfinderMob> type, Level level) {
@@ -133,7 +135,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                         }
                     }
                 }else {
-                    explodeTimer = 40;
+                    explodeTimer = explodeDelay;
                     for(Vec3 pos : explodePos){
                         level().explode(this, this.damageSources().mobAttack(this), null, pos, 3F, false, Level.ExplosionInteraction.NONE);
                     }
@@ -145,7 +147,23 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
         int racerTimer = getEntityData().get(RACER_TIMER);
         if(racerTimer > 0){
+            Entity entity = level().getEntity(getEntityData().get(TARGET_ID));
+            if(entity instanceof Player player){
+                playerPos.add(player.position());
+                if(playerPos.peek() != null && playerPos.peek().distanceTo(player.position()) < 0.5){
+//                    player.hurt(damageSources().mobAttack(this), 0.15f);//会受到霸体影响
+                    player.setHealth(player.getHealth() - 0.3F);
+                }
+            }
             getEntityData().set(RACER_TIMER, racerTimer - 1);
+        } else {
+            playerPos.clear();
+        }
+
+        //射线的延迟时间，提供delay个tick前的玩家位置
+        int delay = 10;
+        if(playerPos.size() > delay){
+            playerPos.poll();
         }
 
         //戳判断
@@ -228,11 +246,16 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         }
         this.lookControl.setLookAt(target);
         getEntityData().set(TARGET_ID, target.getId());
-        getEntityData().set(RACER_TIMER, 100);
+        getEntityData().set(RACER_TIMER, 110);
     }
 
     public int getRacerTimer() {
         return getEntityData().get(RACER_TIMER);
+    }
+
+    @Nullable
+    public Vec3 getDelayPlayerPos(){
+        return playerPos.peek();
     }
 
     @Nullable
@@ -249,6 +272,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         for(Player player : players){
             explodePos.add(player.getPosition(1.0F));
         }
+        explodeTimer = explodeDelay;
     }
 
     public List<Player> getNearByPlayers(int dis){
