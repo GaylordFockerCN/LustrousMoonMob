@@ -1,7 +1,9 @@
 package com.p1nero.lmm.entity.yangjian;
 
+import com.p1nero.lmm.entity.LMMEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -11,10 +13,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -64,7 +65,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         //根据人数调血量（生成即为确定，不实时检测）
         if(level instanceof ServerLevel serverLevel){
             int playerCnt = Math.min(serverLevel.players().size(), 4);
-            Objects.requireNonNull(getAttribute(Attributes.MAX_HEALTH)).setBaseValue(500 * playerCnt);
+            Objects.requireNonNull(getAttribute(Attributes.MAX_HEALTH)).addPermanentModifier(new AttributeModifier("player_cnt", (500 * playerCnt - 1), AttributeModifier.Operation.ADDITION));
         }
     }
 
@@ -77,7 +78,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
     public static AttributeSupplier setAttributes() {//生物属性
         return PathfinderMob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 2000)//最大血量
+                .add(Attributes.MAX_HEALTH, 500)//最大血量
                 .add(Attributes.ATTACK_SPEED, 0.5f)//攻速
                 .add(Attributes.MOVEMENT_SPEED, 2f)//移速
                 .add(Attributes.KNOCKBACK_RESISTANCE, 114514)//抗性
@@ -107,13 +108,19 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         bossInfo.removePlayer(player);
     }
 
+    @Override
+    protected void customServerAiStep() {
+        if (!this.level().isClientSide()) {
+            this.bossInfo.setProgress(this.getHealth() / this.getMaxHealth());
+        }
+    }
+
     /**
      * 因为攻击要延迟，所以几乎都集中在tick判断
      */
     @Override
     public void tick() {
         super.tick();
-
         if(level() instanceof ServerLevel serverLevel){
 
             //爆炸判断
@@ -137,7 +144,8 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                 }else {
                     explodeTimer = explodeDelay;
                     for(Vec3 pos : explodePos){
-                        level().explode(this, this.damageSources().mobAttack(this), null, pos, 3F, false, Level.ExplosionInteraction.NONE);
+                        DamageSource damageSource = this.damageSources().explosion(this, this);
+                        level().explode(this, damageSource, null, pos, 3F, false, Level.ExplosionInteraction.NONE);
                     }
                     explodePos.clear();
                 }
@@ -275,6 +283,27 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         explodeTimer = explodeDelay;
     }
 
+    /**
+     * 召唤哮天犬
+     * 血+30
+     * 改名
+     */
+    public void summonXiaoTian(){
+//        triggerAnim("Summon", "summon");
+        if(level() instanceof ServerLevel serverLevel){
+//            Wolf wolf = EntityType.WOLF.spawn(serverLevel, this.getOnPos().offset(0,0,0), MobSpawnType.MOB_SUMMONED);
+            Wolf wolf = LMMEntities.XIAO_TIAN.get().spawn(serverLevel, this.getOnPos().offset(0,0,0), MobSpawnType.MOB_SUMMONED);
+            if(wolf != null){
+                wolf.setCustomName(Component.translatable("entity.lustrous_moon_mob.xiao_tian"));
+                wolf.setCustomNameVisible(true);
+                wolf.getPersistentData().putBoolean("fromYangJian", true);
+                wolf.setTarget(this.getTarget());
+//                Objects.requireNonNull(wolf.getAttribute(Attributes.MAX_HEALTH))
+//                        .addPermanentModifier(new AttributeModifier("xiao_tian", 30, AttributeModifier.Operation.ADDITION));//好像没成功
+            }
+        }
+    }
+
     public List<Player> getNearByPlayers(int dis){
         BlockPos myPos = this.getOnPos();
         return level().getNearbyPlayers(TargetingConditions.DEFAULT, this, new AABB(myPos.offset(-dis, -dis, -dis), myPos.offset(dis, dis, dis)));
@@ -316,10 +345,11 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         public void start() {
             count = boss.random.nextInt(1,5);
             boss.basicAttackCount = 0;
-            if(boss.random.nextBoolean()){
-                boss.preExplode(64);
-            }else {
-                boss.racer();
+            int i =  boss.random.nextInt(3);
+            switch (i){
+                case 0 -> boss.preExplode(64);
+                case 1 -> boss.racer();
+                default -> boss.summonXiaoTian();
             }
         }
 

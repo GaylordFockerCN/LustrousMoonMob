@@ -2,9 +2,9 @@ package com.p1nero.lmm;
 
 import com.mojang.logging.LogUtils;
 import com.p1nero.lmm.entity.LMMEntities;
-import com.p1nero.lmm.entity.yangjian.client.RacerRenderer;
 import com.p1nero.lmm.entity.yangjian.client.YangJianRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -33,7 +33,7 @@ public class LustrousMoonMobMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             EntityRenderers.register(LMMEntities.YANG_JIAN.get(), YangJianRenderer::new);
-            EntityRenderers.register(LMMEntities.RACER.get(), RacerRenderer::new);
+            EntityRenderers.register(LMMEntities.XIAO_TIAN.get(), WolfRenderer::new);
         }
     }
 }
