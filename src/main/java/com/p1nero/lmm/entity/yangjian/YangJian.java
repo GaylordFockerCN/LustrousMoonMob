@@ -59,6 +59,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     private final Set<Vec3> explodePos = new HashSet<>();
     private final Queue<Vec3> playerPos = new ArrayDeque<>();
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> XIAO_TIAN_ID = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> RACER_TIMER = SynchedEntityData.defineId(YangJian.class, EntityDataSerializers.INT);
     public YangJian(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -72,6 +73,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        getEntityData().define(XIAO_TIAN_ID, -1);
         getEntityData().define(TARGET_ID, -1);
         getEntityData().define(RACER_TIMER, 0);
     }
@@ -158,7 +160,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
             Entity entity = level().getEntity(getEntityData().get(TARGET_ID));
             if(entity instanceof Player player){
                 playerPos.add(player.position());
-                if(playerPos.peek() != null && playerPos.peek().distanceTo(player.position()) < 0.5){
+                if(playerPos.peek() != null && playerPos.peek().distanceTo(player.position()) < 0.5 && isRacerTargetInFront()){
 //                    player.hurt(damageSources().mobAttack(this), 0.15f);//会受到霸体影响
                     player.setHealth(player.getHealth() - 0.3F);
                 }
@@ -169,7 +171,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         }
 
         //射线的延迟时间，提供delay个tick前的玩家位置
-        int delay = 10;
+        int delay = 5;
         if(playerPos.size() > delay){
             playerPos.poll();
         }
@@ -183,13 +185,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                 if(Math.abs(player.getY() - this.getY()) >= 4){
                     continue;
                 }
-                Vec3 targetToBoss = player.position().subtract(this.position());
-                Vec2 targetToBossV2 = new Vec2(((float) targetToBoss.x), ((float) targetToBoss.z));
-                Vec3 view = this.getViewVector(1.0F);
-                Vec2 viewV2 = new Vec2(((float) view.x), ((float) view.z));
-                double angleRadians = Math.acos(targetToBossV2.dot(viewV2)/(targetToBossV2.length() * viewV2.length()));
-                double degree = Math.toDegrees(angleRadians);
-                if(Math.abs(degree) <= 7 && player.distanceTo(this) <= 4.2F){
+                if(Math.abs(getDegree(player)) <= 7 && player.distanceTo(this) <= 4.2F){
                     player.hurt(this.damageSources().mobAttack(this), 10.0F);
                 }
             }
@@ -204,13 +200,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                 if(Math.abs(player.getY() - this.getY()) >= 4){
                     continue;
                 }
-                Vec3 targetToBoss = player.position().subtract(this.position());
-                Vec2 targetToBossV2 = new Vec2(((float) targetToBoss.x), ((float) targetToBoss.z));
-                Vec3 view = this.getViewVector(1.0F);
-                Vec2 viewV2 = new Vec2(((float) view.x), ((float) view.z));
-                double angleRadians = Math.acos(targetToBossV2.dot(viewV2)/(targetToBossV2.length() * viewV2.length()));
-                double degree = Math.toDegrees(angleRadians);
-                if(Math.abs(degree) <= 90 && player.distanceTo(this) <= 3.2F){
+                if(Math.abs(getDegree(player)) <= 90 && player.distanceTo(this) <= 3.2F){
                     player.hurt(this.damageSources().mobAttack(this), 6.0F);
                 }
             }
@@ -272,6 +262,43 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     }
 
     /**
+     * 判断目标是否在boss前方
+     */
+    public boolean isRacerTargetInFront(){
+        Entity entity = getRacerTarget();
+        if(entity != null){
+            return Math.abs(getDegree(entity)) <= 90;
+        }
+        return false;
+    }
+
+    /**
+     * 判断目标是否在boss前方
+     */
+    public boolean isRacerTargetInFront(Vec3 target){
+        return Math.abs(getDegree(target)) <= 70;
+    }
+
+    /**
+     * 获取视线和位置连线的夹角
+     */
+    public double getDegree(Entity entity){
+        return getDegree(entity.position());
+    }
+
+    /**
+     * 获取视线和位置连线的夹角
+     */
+    public double getDegree(Vec3 entity){
+        Vec3 targetToBoss = entity.subtract(this.position());
+        Vec2 targetToBossV2 = new Vec2(((float) targetToBoss.x), ((float) targetToBoss.z));
+        Vec3 view = this.getViewVector(1.0F);
+        Vec2 viewV2 = new Vec2(((float) view.x), ((float) view.z));
+        double angleRadians = Math.acos(targetToBossV2.dot(viewV2)/(targetToBossV2.length() * viewV2.length()));
+        return Math.toDegrees(angleRadians);
+    }
+
+    /**
      * 技能2范围爆炸，判断在tick里
      */
     public void preExplode(int size){
@@ -290,14 +317,17 @@ public class YangJian extends PathfinderMob implements GeoEntity {
      */
     public void summonXiaoTian(){
 //        triggerAnim("Summon", "summon");
-        if(level() instanceof ServerLevel serverLevel){
+        if(level() instanceof ServerLevel serverLevel && !(serverLevel.getEntity(getEntityData().get(XIAO_TIAN_ID)) instanceof XiaoTian)){
 //            Wolf wolf = EntityType.WOLF.spawn(serverLevel, this.getOnPos().offset(0,0,0), MobSpawnType.MOB_SUMMONED);
-            Wolf wolf = LMMEntities.XIAO_TIAN.get().spawn(serverLevel, this.getOnPos().offset(0,0,0), MobSpawnType.MOB_SUMMONED);
+            XiaoTian wolf = LMMEntities.XIAO_TIAN.get().spawn(serverLevel, this.getOnPos().offset(0,2,0), MobSpawnType.MOB_SUMMONED);
             if(wolf != null){
                 wolf.setCustomName(Component.translatable("entity.lustrous_moon_mob.xiao_tian"));
                 wolf.setCustomNameVisible(true);
                 wolf.getPersistentData().putBoolean("fromYangJian", true);
                 wolf.setTarget(this.getTarget());
+//                wolf.setTargetId(Objects.requireNonNull(getTarget()).getUUID());
+//                wolf.setPersistentAngerTarget(Objects.requireNonNull(getTarget()).getUUID());//好像没用
+                getEntityData().set(XIAO_TIAN_ID, wolf.getId());
 //                Objects.requireNonNull(wolf.getAttribute(Attributes.MAX_HEALTH))
 //                        .addPermanentModifier(new AttributeModifier("xiao_tian", 30, AttributeModifier.Operation.ADDITION));//好像没成功
             }

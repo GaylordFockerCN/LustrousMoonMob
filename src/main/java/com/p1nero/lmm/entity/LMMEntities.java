@@ -22,9 +22,9 @@ import net.minecraftforge.registries.RegistryObject;
 public class LMMEntities {
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, LustrousMoonMobMod.MOD_ID);
     public static final RegistryObject<EntityType<YangJian>> YANG_JIAN = register("yang_jian",
-            EntityType.Builder.of(YangJian::new, MobCategory.MONSTER), 1, 3);
+            EntityType.Builder.of(YangJian::new, MobCategory.MONSTER), 1, 2.6F);
     public static final RegistryObject<EntityType<XiaoTian>> XIAO_TIAN = register("xiao_tian",
-            EntityType.Builder.of(XiaoTian::new, MobCategory.MONSTER), 0.5F, 0.5F);
+            EntityType.Builder.of(XiaoTian::new, MobCategory.MONSTER), 0.6F, 0.8F);
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder, float sizeXZ, float sizeY) {
         return REGISTRY.register(name, () -> entityTypeBuilder.sized(sizeXZ, sizeY).build(new ResourceLocation(LustrousMoonMobMod.MOD_ID, name).toString()));

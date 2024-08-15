@@ -38,7 +38,16 @@ public class YangJianRenderer extends GeoEntityRenderer<YangJian> {
                 return;
             }
             Vec3 targetVec = boss.getDelayPlayerPos().add(0,1,0);
+            if(!boss.isRacerTargetInFront(targetVec)){
+                return;
+            }
             Vec3 eye = boss.getEyePosition();
+//            double xr = boss.getBoundingBox().getXsize()/2;
+//            double zr = boss.getBoundingBox().getZsize()/2;
+//            double xr = 0.2;
+//            double zr = 0.2;
+//            eye.add(xr * -Math.sin(boss.getYRot()), 0.2, zr * Math.cos(boss.getYRot()));
+            eye.add(0, 1, 0);
             double dis = targetVec.distanceTo(eye) + 0.5;
             Vector3f targetToEye = targetVec.subtract(eye).normalize().toVector3f();
             Vector3f ordinal = new Vector3f(0, 1, 0);
@@ -63,7 +72,7 @@ public class YangJianRenderer extends GeoEntityRenderer<YangJian> {
     }
 
     private static void renderBeaconBeam(PoseStack pPoseStack, MultiBufferSource pBufferSource, float pPartialTick, long pGameTime, double pYOffset, double pHeight, float[] pColors) {
-        renderBeaconBeam(pPoseStack, pBufferSource, BEAM_LOCATION, pPartialTick, 1.0F, pGameTime, pYOffset, pHeight, pColors, 0.1F, 0.15F);
+        renderBeaconBeam(pPoseStack, pBufferSource, BEAM_LOCATION, pPartialTick, 1.0F, pGameTime, pYOffset, pHeight, pColors, 0.05F, 0.05F);
     }
 
     public static void renderBeaconBeam(PoseStack pPoseStack, MultiBufferSource pBufferSource, ResourceLocation pBeamLocation, float pPartialTick, float pTextureScale, long pGameTime, double pYOffset, double pHeight, float[] pColors, float pBeamRadius, float pGlowRadius) {
