@@ -1,6 +1,7 @@
 package com.p1nero.lmm.entity.yangjian;
 
 import com.p1nero.lmm.entity.LMMEntities;
+import com.p1nero.lmm.utils.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -148,6 +149,9 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                     for(Vec3 pos : explodePos){
                         DamageSource damageSource = this.damageSources().explosion(this, this);
                         level().explode(this, damageSource, null, pos, 3F, false, Level.ExplosionInteraction.NONE);
+
+                        //TODO  测试
+                        System.out.println(LevelUtil.circleSlamFracture(this, level(), getOnPos().getCenter(), 10));
                     }
                     explodePos.clear();
                 }
