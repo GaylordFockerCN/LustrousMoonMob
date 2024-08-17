@@ -1,7 +1,8 @@
 package com.p1nero.lmm;
 
 import com.mojang.logging.LogUtils;
-import com.p1nero.lmm.block.BlockEntities;
+import com.p1nero.lmm.block.client.FractureBlockRenderer;
+import com.p1nero.lmm.block.entity.BlockEntities;
 import com.p1nero.lmm.block.Blocks;
 import com.p1nero.lmm.client.GroundSlamParticle;
 import com.p1nero.lmm.client.LMMParticles;
@@ -12,6 +13,7 @@ import com.p1nero.lmm.utils.NetworkManager;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -58,6 +60,11 @@ public class LustrousMoonMobMod {
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
             event.registerSpecial(LMMParticles.GROUND_SLAM.get(), new GroundSlamParticle.Provider());
+        }
+
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public static void registerRenderersEvent(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(BlockEntities.FRACTURE.get(), FractureBlockRenderer::new);
         }
     }
 }

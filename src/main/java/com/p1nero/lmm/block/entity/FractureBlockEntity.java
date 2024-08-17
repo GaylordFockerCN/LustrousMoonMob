@@ -1,5 +1,6 @@
-package com.p1nero.lmm.block;
+package com.p1nero.lmm.block.entity;
 
+import com.p1nero.lmm.block.FractureBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

@@ -1,4 +1,4 @@
-package com.p1nero.lmm.block;
+package com.p1nero.lmm.block.entity;
 
 import java.util.Set;
 

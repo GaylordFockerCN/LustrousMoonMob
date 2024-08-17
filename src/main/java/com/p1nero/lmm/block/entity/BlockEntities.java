@@ -1,7 +1,8 @@
-package com.p1nero.lmm.block;
+package com.p1nero.lmm.block.entity;
 
 import com.google.common.collect.ImmutableSet;
 import com.p1nero.lmm.LustrousMoonMobMod;
+import com.p1nero.lmm.block.Blocks;
 import net.minecraft.Util;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.entity.BlockEntityType;

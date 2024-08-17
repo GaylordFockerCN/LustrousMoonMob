@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
 
+import com.p1nero.lmm.block.entity.BlockEntities;
+import com.p1nero.lmm.block.entity.FractureBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
