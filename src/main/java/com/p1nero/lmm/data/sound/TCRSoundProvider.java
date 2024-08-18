@@ -23,7 +23,8 @@ public abstract class TCRSoundProvider extends SoundDefinitionsProvider {
         SoundDefinition definition = SoundDefinition.definition();
         if (subtitle) {
             String[] splitSoundName = event.getId().getPath().split("\\.", 3);
-            definition.subtitle("subtitles."+LustrousMoonMobMod.MOD_ID+"." + splitSoundName[0] + "." + splitSoundName[2]);
+//            definition.subtitle("subtitles."+LustrousMoonMobMod.MOD_ID+"." + splitSoundName[0] + "." + splitSoundName[2]);
+            definition.subtitle("subtitles."+LustrousMoonMobMod.MOD_ID+"." + splitSoundName[0]);
         }
         for (int i = 1; i <= numberOfSounds; i++) {
             definition.with(SoundDefinition.Sound.sound(new ResourceLocation(LustrousMoonMobMod.MOD_ID, baseSoundDirectory + (numberOfSounds > 1 ? "_"+i : "")), SoundDefinition.SoundType.SOUND));

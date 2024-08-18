@@ -1,0 +1,41 @@
+{
+  "attack": {
+    "sounds": [
+      "lustrous_moon_mob:attack_1",
+      "lustrous_moon_mob:attack_2",
+      "lustrous_moon_mob:attack_3",
+      "lustrous_moon_mob:attack_4"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.attack"
+  },
+  "break": {
+    "sounds": [
+      "lustrous_moon_mob:break"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.break"
+  },
+  "light": {
+    "sounds": [
+      "lustrous_moon_mob:light"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.light"
+  },
+  "sfx.ground_slam": {
+    "sounds": [
+      "lustrous_moon_mob:sfx/ground_slam"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.sfx"
+  },
+  "sfx.ground_slam_small": {
+    "sounds": [
+      "lustrous_moon_mob:sfx/ground_slam_small"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.sfx"
+  },
+  "skill": {
+    "sounds": [
+      "lustrous_moon_mob:skill"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.skill"
+  }
+}
