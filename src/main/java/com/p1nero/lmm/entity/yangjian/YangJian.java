@@ -223,7 +223,6 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                 playerPos.add(player.position());
 
                 if(isRacerTargetInFront()){
-                    level().playSound(null, this.getX(), this.getY(), this.getZ(), LMMSounds.LIGHT.get(), SoundSource.BLOCKS, 1, 1);
                     if(playerPos.peek() != null && playerPos.peek().distanceTo(player.position()) < 0.5){
 //                    player.hurt(damageSources().mobAttack(this), 0.15f);//会受到霸体影响
                         player.setHealth(player.getHealth() - 0.3F);
@@ -263,6 +262,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
      * 技能1发射激光
      */
     public void racer(){
+        level().playSound(null, this.getX(), this.getY(), this.getZ(), LMMSounds.LIGHT.get(), SoundSource.BLOCKS, 1, 1);
         List<Player> players = getNearByPlayers(64);
         if(players.isEmpty()){
             return;
@@ -498,8 +498,8 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         }));
         controllers.add(new AnimationController<>(this, "Skill", 10, state -> PlayState.STOP)
                 .triggerableAnim("attack", RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE))
-                .triggerableAnim("racer", RawAnimation.begin().then("racer", Animation.LoopType.PLAY_ONCE))
-                .triggerableAnim("summon", RawAnimation.begin().then("summon", Animation.LoopType.PLAY_ONCE))
+//                .triggerableAnim("racer", RawAnimation.begin().then("racer", Animation.LoopType.PLAY_ONCE))
+//                .triggerableAnim("summon", RawAnimation.begin().then("summon", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("explode", RawAnimation.begin().then("explode", Animation.LoopType.PLAY_ONCE)));
 
     }
