@@ -171,7 +171,8 @@ public class YangJian extends PathfinderMob implements GeoEntity {
             //爆炸判断
             if(!explodePos.isEmpty()){
                 if(explodeTimer > 0){
-//                    explodeTimer--;
+                    explodeTimer--;
+                    this.setPos(getPosition(1.0f));
                     //生成一圈粒子特效
                     for(Vec3 pos : explodePos){
                         double radius = 3;
@@ -198,13 +199,6 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
         }
 
-        //爆炸的时候也不能动
-        if(explodeTimer >0){
-            explodeTimer--;
-//            this.getNavigation().stop();
-            this.setPos(getPosition(1.0f));
-        }
-
         //手动位移，原版的navigation搞不明白
         if(attackTimer > 0){
             attackTimer--;
@@ -213,7 +207,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 //            this.getNavigation().moveTo(vector3f.x, vector3f.y, vector3f.z, 1);
             this.getNavigation().stop();
             this.getLookControl().setLookAt(vec3);
-            this.setDeltaMovement(vec3.normalize().scale(0.2));
+            this.setDeltaMovement(vec3.normalize().scale(0.15));
         }
 
         int racerTimer = getEntityData().get(RACER_TIMER);
@@ -397,11 +391,12 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         private final YangJian boss;
 
         private int count;
+        private final int maxCount = 5;
 
         private YangJianSkillGoal(YangJian boss){
             this.boss = boss;
 //            count = boss.random.nextInt(2,5);
-            count = 2;
+            count = maxCount;
         }
 
         @Override
@@ -412,7 +407,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         @Override
         public void start() {
 //            count = boss.random.nextInt(1,5);
-            count = 2;
+            count = maxCount;
             boss.basicAttackCount = 0;
             int i =  boss.random.nextInt(boss.hasXiaoTian(((ServerLevel) boss.level())) ? 3 : 4);
             switch (i){
@@ -425,10 +420,13 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
     }
 
-    private static class YangJianAttackGoal extends MeleeAttackGoal{
+    /**
+     * 早期是有普攻的，后面移除了，但是保留计数器
+     */
+     private static class YangJianAttackGoal extends MeleeAttackGoal{
         private final YangJian boss;
         private int ticksUntilNextAttack;
-        private final int attackRange = 5;
+        private final int attackRange = 32;
         private YangJianAttackGoal(YangJian boss) {
             super(boss, 0.3, true);
             this.boss = boss;
