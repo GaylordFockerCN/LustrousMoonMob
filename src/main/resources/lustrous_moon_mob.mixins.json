@@ -5,7 +5,7 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "refmap": "sword_soaring.mixin-refmap.json",
+  "refmap": "lustrous_moon_mob.mixin-refmap.json",
   "minVersion": "0.8",
   "mixins": [
     "WolfMixin"

@@ -19,11 +19,11 @@ public class YangJianModel extends DefaultedEntityGeoModel<YangJian> {
      */
     @Override
     public void setCustomAnimations(YangJian animatable, long instanceId, AnimationState<YangJian> animationState) {
-        CoreGeoBone head = this.getAnimationProcessor().getBone("Head");
-        if (head != null) {
-            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-            head.setRotX(entityData.headPitch() * 0.017453292F);
-            head.setRotY(entityData.netHeadYaw() * 0.017453292F);
-        }
+//        CoreGeoBone head = this.getAnimationProcessor().getBone("allhead");
+//        if (head != null) {
+//            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
+//            head.setRotX(entityData.headPitch() * 0.017453292F);
+//            head.setRotY(entityData.netHeadYaw() * 0.017453292F);
+//        }
     }
 }

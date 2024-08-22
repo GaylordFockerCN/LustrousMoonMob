@@ -1,10 +1,10 @@
 package com.p1nero.lmm.data.sound;
 
-import com.p1nero.lmm.client.LMMSounds;
+import com.p1nero.lmm.client.sound.LMMSounds;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
-public class SoundGenerator extends TCRSoundProvider {
+public class SoundGenerator extends SoundProvider {
 
     public SoundGenerator(PackOutput output, ExistingFileHelper helper) {
         super(output, helper);
@@ -18,5 +18,9 @@ public class SoundGenerator extends TCRSoundProvider {
         this.generateNewSoundWithSubtitle(LMMSounds.LIGHT, "light", 1);
         this.generateNewSoundWithSubtitle(LMMSounds.SKILL, "skill", 1);
         this.generateNewSoundWithSubtitle(LMMSounds.ATTACK, "attack", 4);
+        this.generateNewSoundWithSubtitle(LMMSounds.LINE1, "1", 1);
+        this.generateNewSoundWithSubtitle(LMMSounds.LINE2, "2", 1);
+        this.generateNewSoundWithSubtitle(LMMSounds.LINE3, "3", 1);
+        this.generateNewSoundWithSubtitle(LMMSounds.BGM, "bgm", 1);
     }
 }

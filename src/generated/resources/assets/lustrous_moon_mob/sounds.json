@@ -8,6 +8,12 @@
     ],
     "subtitle": "subtitles.lustrous_moon_mob.attack"
   },
+  "bgm": {
+    "sounds": [
+      "lustrous_moon_mob:bgm"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.bgm"
+  },
   "break": {
     "sounds": [
       "lustrous_moon_mob:break"
@@ -19,6 +25,24 @@
       "lustrous_moon_mob:light"
     ],
     "subtitle": "subtitles.lustrous_moon_mob.light"
+  },
+  "line1": {
+    "sounds": [
+      "lustrous_moon_mob:1"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.line1"
+  },
+  "line2": {
+    "sounds": [
+      "lustrous_moon_mob:2"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.line2"
+  },
+  "line3": {
+    "sounds": [
+      "lustrous_moon_mob:3"
+    ],
+    "subtitle": "subtitles.lustrous_moon_mob.line3"
   },
   "sfx.ground_slam": {
     "sounds": [

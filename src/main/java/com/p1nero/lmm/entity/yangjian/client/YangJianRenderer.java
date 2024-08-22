@@ -29,7 +29,7 @@ public class YangJianRenderer extends GeoEntityRenderer<YangJian> {
     @Override
     public void render(@NotNull YangJian boss, float entityYaw, float pPartialTick, @NotNull PoseStack pPoseStack, @NotNull MultiBufferSource pBuffer, int packedLight) {
         super.render(boss, entityYaw, pPartialTick, pPoseStack, pBuffer, packedLight);
-        if(boss.getRacerTimer()>0){
+        if(boss.getRacerTimer()>0 && boss.canRenderRacer()){
             Entity target = boss.getRacerTarget();
             if(target == null){
                 return;
@@ -44,18 +44,20 @@ public class YangJianRenderer extends GeoEntityRenderer<YangJian> {
             Vec3 eye = boss.getEyePosition();
 //            double xr = boss.getBoundingBox().getXsize()/2;
 //            double zr = boss.getBoundingBox().getZsize()/2;
-//            double xr = 0.2;
-//            double zr = 0.2;
-//            eye.add(xr * -Math.sin(boss.getYRot()), 0.2, zr * Math.cos(boss.getYRot()));
-            eye.add(0, 1, 0);
-            double dis = targetVec.distanceTo(eye) + 0.5;
+//            eye.add(xr * -Math.sin(boss.getYRot()), 0.2, xr * -Math.sin(boss.getYRot()));
+            double dis = targetVec.distanceTo(eye) + 0.2;
             Vector3f targetToEye = targetVec.subtract(eye).normalize().toVector3f();
             Vector3f ordinal = new Vector3f(0, 1, 0);
             Quaternionf quaternion = new Quaternionf().rotateTo(ordinal.x, ordinal.y, ordinal.z, targetToEye.x, targetToEye.y, targetToEye.z);
             pPoseStack.pushPose();
-            pPoseStack.translate(0, boss.getEyeHeight(), 0);
+            double xr = 0.1;
+            double zr = 0.1;
+//            pPoseStack.translate(xr * Math.sin(boss.getViewYRot(1.0F)), boss.getEyeHeight() + 0.3, zr * Math.cos(boss.getViewYRot(1.0F)));
+            pPoseStack.translate(0, boss.getEyeHeight() + 0.32, 0);
             pPoseStack.mulPose(quaternion);
-            renderBeaconBeam(pPoseStack, pBuffer, pPartialTick, boss.level().getGameTime(), 0, dis, new float[]{5,5,5});
+//            float[] color = new float[]{5, 5, 254};
+            float[] color = new float[]{5, 25, 255};
+            renderBeaconBeam(pPoseStack, pBuffer, pPartialTick, boss.level().getGameTime(), 0, dis, color);
             pPoseStack.popPose();
         }
     }

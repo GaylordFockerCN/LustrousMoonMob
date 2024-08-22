@@ -1,4 +1,7 @@
 {
   "entity.lustrous_moon_mob.yang_jian": "杨戬",
-  "entity.lustrous_moon_mob.xiao_tian": "哮天"
+  "entity.lustrous_moon_mob.xiao_tian": "哮天",
+  "line1.lustrous_moon_mob.yang_jian": "上到三清，下到天兵，天庭神仙那般状况，也是你所为？",
+  "line2.lustrous_moon_mob.yang_jian": "你可知你四位同伴如今是否安好？",
+  "line3.lustrous_moon_mob.yang_jian": "霁月魔尊，我一再给你机会，你好不识抬举！"
 }

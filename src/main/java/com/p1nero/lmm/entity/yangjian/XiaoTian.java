@@ -7,8 +7,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,33 +23,46 @@ import java.util.UUID;
 
 public class XiaoTian extends Wolf {
 
-//    private static final EntityDataAccessor<Optional<UUID>> TARGET_ID = SynchedEntityData.defineId(XiaoTian.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(XiaoTian.class, EntityDataSerializers.INT);
     public XiaoTian(EntityType<? extends Wolf> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
-//    @Override
-//    protected void defineSynchedData() {
-//        super.defineSynchedData();
-//        getEntityData().define(TARGET_ID, Optional.of(this.uuid));
-//    }
-//
-//    @Override
-//    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-//        super.addAdditionalSaveData(pCompound);
-//        getEntityData().get(TARGET_ID).ifPresent(uuid1 -> pCompound.putUUID("target", uuid1));
-//
-//    }
-//
-//    @Override
-//    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-//        super.readAdditionalSaveData(pCompound);
-//        getEntityData().set(TARGET_ID, Optional.of(pCompound.getUUID("target")));
-//    }
-//
-//    public void setTargetId(UUID uuid){
-//        getEntityData().set(TARGET_ID, Optional.of(uuid));
-//    }
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        getEntityData().define(OWNER_ID, -1);
+    }
+
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        if(pSource.getEntity() instanceof Player){
+            return super.hurt(pSource, pAmount);
+        }
+        return false;
+    }
+
+    @Override
+    protected int calculateFallDamage(float pFallDistance, float pDamageMultiplier) {
+        return 0;
+    }
+
+    @Override
+    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
+        pCompound.putInt("owner", getEntityData().get(OWNER_ID));
+
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+        getEntityData().set(OWNER_ID, pCompound.getInt("owner"));
+    }
+
+    public void setOwner(int id){
+        getEntityData().set(OWNER_ID, id);
+    }
 
     /**
      * 用setPersistentTarget没用
@@ -59,6 +72,10 @@ public class XiaoTian extends Wolf {
     public void tick() {
         super.tick();
         setTarget(level().getNearestPlayer(this, 64));
+        if(!(level().getEntity(getEntityData().get(OWNER_ID)) instanceof YangJian)){
+//            this.discard();
+            this.setHealth(0);
+        }
     }
 
     public static AttributeSupplier.@NotNull Builder createAttributes() {

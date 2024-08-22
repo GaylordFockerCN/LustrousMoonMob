@@ -1,4 +1,7 @@
 {
   "entity.lustrous_moon_mob.yang_jian": "杨戬",
-  "entity.lustrous_moon_mob.xiao_tian": "哮天"
+  "entity.lustrous_moon_mob.xiao_tian": "哮天",
+  "line1.lustrous_moon_mob.yang_jian": "From the lofty Sanqing to the heavenly soldiers, is this the grand spectacle you have wrought?",
+  "line2.lustrous_moon_mob.yang_jian": "Do you know if your four companions are faring well?",
+  "line3.lustrous_moon_mob.yang_jian": "Jiyue Demon Lord, I have given you chance after chance, yet you remain ungrateful!"
 }

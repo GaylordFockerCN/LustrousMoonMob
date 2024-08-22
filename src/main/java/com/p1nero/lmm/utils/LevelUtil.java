@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.p1nero.lmm.block.FractureBlock;
 import com.p1nero.lmm.block.FractureBlockState;
 import com.p1nero.lmm.client.LMMParticles;
-import com.p1nero.lmm.client.LMMSounds;
+import com.p1nero.lmm.client.sound.LMMSounds;
 import com.p1nero.lmm.network.SPFracture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -224,8 +224,9 @@ public class LevelUtil {
             for (Entity entity : entityBeingHit) {
                 if (!entity.is(caster)) {
                     double damageInflict = 1.0D - ((entity.position().distanceTo(center) - radius * 0.5D) / radius);
-                    float damage = (float)(radius * 2.0D * Math.min(damageInflict, 1.0D));
+                    float damage = (float)(radius * 10.0D * Math.min(damageInflict, 1.0D));
                     entity.hurt(entity.damageSources().mobAttack(caster), damage);
+                    entity.setDeltaMovement(0, 1, 0);
 //                    EpicFightDamageSources damageSources = EpicFightDamageSources.of(entity.level());
 //                    entity.hurt(damageSources.shockwave(caster)
 //                                    .setAnimation(Animations.DUMMY_ANIMATION)
