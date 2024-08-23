@@ -71,7 +71,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         //根据人数调血量（生成即为确定，不实时检测）
         if(level instanceof ServerLevel serverLevel){
             int playerCnt = Math.min(serverLevel.players().size(), 4);
-            playerCnt = Math.max(1, playerCnt-1);
+            playerCnt = Math.max(0, playerCnt-1);
             Objects.requireNonNull(getAttribute(Attributes.MAX_HEALTH)).addPermanentModifier(new AttributeModifier("player_cnt", (500 * playerCnt), AttributeModifier.Operation.ADDITION));
             setHealth(getMaxHealth());
         }
@@ -213,7 +213,7 @@ public class YangJian extends PathfinderMob implements GeoEntity {
                 }
 
                 if(attackTimer == 18){
-                    LevelUtil.circleSlamFracture(this, level(), this.getOnPos().getCenter(), 5);
+                    LevelUtil.circleSlamFracture(null, level(), this.position().subtract(0, 1, 0), 5);
                     level().playSound(null, this.getX(), this.getY(), this.getZ(), LMMSounds.BREAK.get(), SoundSource.BLOCKS, 2, 1);
                 }
 

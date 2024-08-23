@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class BossMusicPlayer {
 
-    public static BossMusic music;
+    private static BossMusic music;
 
     public static void playBossMusic(LivingEntity entity, SoundEvent bgm, float dis) {
         if (!Config.PLAY_BGM.get()) return;
@@ -19,9 +19,10 @@ public class BossMusicPlayer {
         if (bgm != null && entity.isAlive()) {
             Player player = Minecraft.getInstance().player;
             if (music != null) {
-                if (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MUSIC) <= 0) {
-                    music = null;
-                } else if (music.boss == entity && entity.distanceTo(player) > dis) {
+//                if (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MUSIC) <= 0) {
+//                    music = null;
+//                } else
+                    if (music.boss == entity && entity.distanceTo(player) > dis) {
                     music.boss = null;
                 } else if (music.boss == null && music.soundEvent == bgm) {
                     music.boss = entity;

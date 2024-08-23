@@ -254,6 +254,7 @@ public class LevelUtil {
 
     public static boolean canTransferShockWave(Level level, BlockPos blockPos, BlockState blockState) {
         return Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN) || (blockState instanceof FractureBlockState);
+//        return true;
     }
 
     private static boolean isBlockOverlapLine(Vec2i vec2, Vec3 from, Vec3 to) {
