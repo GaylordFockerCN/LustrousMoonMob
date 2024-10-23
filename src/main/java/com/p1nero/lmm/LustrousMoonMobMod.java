@@ -8,6 +8,8 @@ import com.p1nero.lmm.client.GroundSlamParticle;
 import com.p1nero.lmm.client.LMMParticles;
 import com.p1nero.lmm.client.sound.LMMSounds;
 import com.p1nero.lmm.entity.LMMEntities;
+import com.p1nero.lmm.entity.bride.client.BrideRenderer;
+import com.p1nero.lmm.entity.bride.client.ClawRenderer;
 import com.p1nero.lmm.entity.yangjian.client.YangJianRenderer;
 import com.p1nero.lmm.utils.NetworkManager;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -57,6 +59,8 @@ public class LustrousMoonMobMod {
         public static void onClientSetup(FMLClientSetupEvent event) {
             EntityRenderers.register(LMMEntities.YANG_JIAN.get(), YangJianRenderer::new);
             EntityRenderers.register(LMMEntities.XIAO_TIAN.get(), WolfRenderer::new);
+            EntityRenderers.register(LMMEntities.BRIDE.get(), BrideRenderer::new);
+            EntityRenderers.register(LMMEntities.CLAW.get(), ClawRenderer::new);
         }
 
         @SubscribeEvent(priority = EventPriority.LOWEST)

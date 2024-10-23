@@ -3,6 +3,7 @@ package com.p1nero.lmm.entity.yangjian;
 import com.p1nero.lmm.client.sound.BossMusicPlayer;
 import com.p1nero.lmm.client.sound.LMMSounds;
 import com.p1nero.lmm.entity.LMMEntities;
+import com.p1nero.lmm.entity.LMMMob;
 import com.p1nero.lmm.utils.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -49,7 +50,7 @@ import java.util.*;
  * 5.boss霸体，单人500血，双人1000，三人1500，四人以上2000
  * 6.平A 1~5次后接技能
  */
-public class YangJian extends PathfinderMob implements GeoEntity {
+public class YangJian extends LMMMob implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final ServerBossEvent bossInfo = new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
     private int lineTimer = 0;
@@ -87,7 +88,10 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         getEntityData().define(TARGET_DIR, new Vector3f());
     }
 
-    public static AttributeSupplier setAttributes() {//生物属性
+    /**
+     *生物属性
+     */
+    public static AttributeSupplier setAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 500)//最大血量
                 .add(Attributes.MOVEMENT_SPEED, 0.3f)//移速
@@ -378,25 +382,6 @@ public class YangJian extends PathfinderMob implements GeoEntity {
     }
 
     /**
-     * 获取视线和位置连线的夹角
-     */
-    public double getDegree(Entity entity){
-        return getDegree(entity.position());
-    }
-
-    /**
-     * 获取视线和位置连线的夹角
-     */
-    public double getDegree(Vec3 entity){
-        Vec3 targetToBoss = entity.subtract(this.position());
-        Vec2 targetToBossV2 = new Vec2(((float) targetToBoss.x), ((float) targetToBoss.z));
-        Vec3 view = this.getViewVector(1.0F);
-        Vec2 viewV2 = new Vec2(((float) view.x), ((float) view.z));
-        double angleRadians = Math.acos(targetToBossV2.dot(viewV2)/(targetToBossV2.length() * viewV2.length()));
-        return Math.toDegrees(angleRadians);
-    }
-
-    /**
      * 技能2范围爆炸，判断在tick里
      */
     public void preExplode(int size){
@@ -431,11 +416,6 @@ public class YangJian extends PathfinderMob implements GeoEntity {
 
     public boolean hasXiaoTian(ServerLevel serverLevel){
         return serverLevel.getEntity(getEntityData().get(XIAO_TIAN_ID)) instanceof XiaoTian;
-    }
-
-    public List<Player> getNearByPlayers(int dis){
-        BlockPos myPos = this.getOnPos();
-        return level().getNearbyPlayers(TargetingConditions.DEFAULT, this, new AABB(myPos.offset(-dis, -dis, -dis), myPos.offset(dis, dis, dis)));
     }
 
     private static class RecoverIfNoPlayerGoal extends Goal {
@@ -549,4 +529,8 @@ public class YangJian extends PathfinderMob implements GeoEntity {
         return super.getDeathSound();
     }
 
+    @Override
+    public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
+        return false;
+    }
 }
