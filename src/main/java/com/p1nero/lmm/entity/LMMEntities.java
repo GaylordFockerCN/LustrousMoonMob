@@ -27,7 +27,7 @@ public class LMMEntities {
     public static final RegistryObject<EntityType<XiaoTian>> XIAO_TIAN = register("xiao_tian",
             EntityType.Builder.of(XiaoTian::new, MobCategory.MONSTER), 0.6F, 0.8F);
     public static final RegistryObject<EntityType<Bride>> BRIDE = register("bride",
-            EntityType.Builder.of(Bride::new, MobCategory.MONSTER), 0.8F, 3.0F);
+            EntityType.Builder.of(Bride::new, MobCategory.MONSTER), 0.6F, 2.5F);
     public static final RegistryObject<EntityType<ClawEntity>> CLAW = register("claw",
             EntityType.Builder.of(ClawEntity::new, MobCategory.MONSTER), 1, 2.6F);
 
