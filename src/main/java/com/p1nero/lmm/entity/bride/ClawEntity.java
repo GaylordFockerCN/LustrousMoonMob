@@ -57,7 +57,7 @@ public class ClawEntity extends Mob implements GeoEntity{
         super.tick();
         catchTimer--;
         if(catchTimer < 0 && !isCatching && this.target != null && !level().isClientSide && checkHit(target.getOnPos(),1)){
-            target.hurt(level().damageSources().magic(),10f);
+            target.hurt(level().damageSources().mobAttack(getBride()),10);
             isCatching = true;
         }
         if(isCatching && this.target != null && !level().isClientSide){
