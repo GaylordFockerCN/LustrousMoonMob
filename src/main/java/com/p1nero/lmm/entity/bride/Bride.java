@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -36,8 +35,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 
 /**
- * 1.近战，召唤控制爪
- * 2.
+ * 近战，召唤控制爪
  */
 public class Bride extends LMMMob implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -223,7 +221,7 @@ public class Bride extends LMMMob implements GeoEntity {
     @Nullable
     @Override
     protected SoundEvent getHurtSound(@NotNull DamageSource source) {
-        return super.getHurtSound(source);
+        return LMMSounds.BRIDE_HURT.get();
     }
 
     @Nullable

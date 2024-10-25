@@ -22,5 +22,6 @@ public class SoundGenerator extends SoundProvider {
         this.generateNewSoundWithSubtitle(LMMSounds.LINE2, "2", 1);
         this.generateNewSoundWithSubtitle(LMMSounds.LINE3, "3", 1);
         this.generateNewSoundWithSubtitle(LMMSounds.BGM, "bgm", 1);
+        this.generateNewSoundWithSubtitle(LMMSounds.BRIDE_HURT, "bride/hurt", 3);
     }
 }

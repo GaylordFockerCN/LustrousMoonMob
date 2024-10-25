@@ -20,6 +20,7 @@ public class LMMSounds {
     public static final RegistryObject<SoundEvent> LINE2 = registerSound("line2");
     public static final RegistryObject<SoundEvent> LINE3 = registerSound("line3");
     public static final RegistryObject<SoundEvent> BGM = registerSound("bgm");
+    public static final RegistryObject<SoundEvent> BRIDE_HURT = registerSound("bride_hurt");
     private static RegistryObject<SoundEvent> registerSound(String name) {
         ResourceLocation res = new ResourceLocation(LustrousMoonMobMod.MOD_ID, name);
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(res));
