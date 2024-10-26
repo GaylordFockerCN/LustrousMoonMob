@@ -8,6 +8,7 @@
   "refmap": "lustrous_moon_mob.mixin-refmap.json",
   "minVersion": "0.8",
   "mixins": [
+    "SkillCastCrescentiaRangedMixin",
     "WolfMixin"
   ]
 }
