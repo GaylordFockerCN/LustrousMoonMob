@@ -136,6 +136,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     implementation fg.deobf("libs:celestisynth:1.2.2")
+    implementation fg.deobf("libs:player-animation:1.0.2")
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.7")
 }
 

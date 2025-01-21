@@ -48,7 +48,7 @@ public class Bride extends LMMMob implements GeoEntity {
         if(level instanceof ServerLevel serverLevel){
             int playerCnt = Math.min(serverLevel.players().size(), 4);
             playerCnt = Math.max(0, playerCnt-1);
-            Objects.requireNonNull(getAttribute(Attributes.MAX_HEALTH)).addPermanentModifier(new AttributeModifier("player_cnt", (100 * playerCnt), AttributeModifier.Operation.ADDITION));
+            Objects.requireNonNull(getAttribute(Attributes.MAX_HEALTH)).addPermanentModifier(new AttributeModifier("player_cnt", (200 * playerCnt), AttributeModifier.Operation.ADDITION));
             setHealth(getMaxHealth());
         }
     }
@@ -64,8 +64,9 @@ public class Bride extends LMMMob implements GeoEntity {
      */
     public static AttributeSupplier setAttributes() {
         return PathfinderMob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 200)//最大血量
+                .add(Attributes.MAX_HEALTH, 500)//最大血量
                 .add(Attributes.MOVEMENT_SPEED, 0.3f)//移速
+                .add(Attributes.ATTACK_SPEED, 2.0f)//攻速？
                 .build();
     }
 
@@ -121,7 +122,7 @@ public class Bride extends LMMMob implements GeoEntity {
                     List<Player> players = getNearByPlayers(2);
                     for(Player player : players){
                         if(getDegree(player) < 30){
-                            player.hurt(this.damageSources().mobAttack(this), 12);
+                            player.hurt(this.damageSources().mobAttack(this), 14);
                         }
                     }
                 }

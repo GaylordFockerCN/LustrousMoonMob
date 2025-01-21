@@ -135,6 +135,14 @@ public class YangJian extends LMMMob implements GeoEntity {
         }
     }
 
+    @Override
+    public boolean hurt(@NotNull DamageSource source, float p_21017_) {
+        if(!(source.getEntity() instanceof Player)){
+            return false;
+        }
+        return super.hurt(source, p_21017_);
+    }
+
     /**
      * 因为攻击要延迟，所以几乎都集中在tick判断
      */
